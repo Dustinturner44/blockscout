@@ -184,7 +184,7 @@ defmodule Explorer.Factory do
   def watchlist_address_db_factory(%{wl_id: id}) do
     hash = insert(:address).hash
 
-    %WatchlistAddress{
+    watchlist_address = %WatchlistAddress{
       name: sequence("test"),
       watchlist_id: id,
       address_hash: hash,
@@ -201,6 +201,17 @@ defmodule Explorer.Factory do
       watch_erc_404_output: random_bool(),
       notify_email: random_bool()
     }
+
+    watchlist_address_extended =
+      if chain_type() == :zilliqa do
+        watchlist_address
+        |> Map.put(:watch_zrc_2_input, random_bool())
+        |> Map.put(:watch_zrc_2_output, random_bool())
+      else
+        watchlist_address
+      end
+
+    watchlist_address_extended
   end
 
   def custom_abi_factory do
