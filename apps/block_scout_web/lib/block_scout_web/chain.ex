@@ -467,6 +467,10 @@ defmodule BlockScoutWeb.Chain do
     [paging_options: %{@default_paging_options | key: %{transaction_index: transaction_index, index: index}}]
   end
 
+  def paging_options(%{transaction_index: transaction_index, index: index}) do
+    [paging_options: %{@default_paging_options | key: %{transaction_index: transaction_index, index: index}}]
+  end
+
   def paging_options(%{"index" => index_string}) when is_binary(index_string) do
     case Integer.parse(index_string) do
       {index, ""} ->
