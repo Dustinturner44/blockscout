@@ -103,14 +103,14 @@
     },
     "ip": {
       "period": "1h",
-      "limit": 50
+      "limit": 5
     },
     "isolate_rate_limit?": true
   },
   "api/health/*": {
     "ip": {
       "period": "1s",
-      "limit": 5
+      "limit": 50
     },
     "isolate_rate_limit?": true
   },
