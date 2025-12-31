@@ -26,6 +26,11 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - id: set-matrix
         run: |
           echo "matrix=$(node -e '
@@ -58,8 +63,13 @@ jobs:
     name: Build and Cache deps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: erlef/setup-beam@v1
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: erlef/setup-beam@e6d7c94229049569db56a7ad5a540c051a010af9 # v1.20.4
         with:
           otp-version: ${{ env.OTP_VERSION }}
           elixir-version: ${{ env.ELIXIR_VERSION }}
@@ -74,7 +84,7 @@ jobs:
         run: echo "${OTP_VERSION}" > OTP_VERSION.lock
 
       - name: Restore Mix Deps Cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: deps-cache
         with:
           path: |
@@ -102,8 +112,13 @@ jobs:
       - build-and-cache
       - matrix-builder
     steps:
-      - uses: actions/checkout@v5
-      - uses: erlef/setup-beam@v1
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: erlef/setup-beam@e6d7c94229049569db56a7ad5a540c051a010af9 # v1.20.4
         with:
           otp-version: ${{ env.OTP_VERSION }}
           elixir-version: ${{ env.ELIXIR_VERSION }}
@@ -112,7 +127,7 @@ jobs:
             https://cdn.jsdelivr.net/hex
 
       - name: Mix Deps Cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: deps-cache
         with:
           path: |
@@ -129,7 +144,7 @@ jobs:
           CHAIN_TYPE: ${{ matrix.chain-type != 'default' && matrix.chain-type || '' }}
 
       - name: Upload OpenAPI spec
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: openapi-spec-${{ matrix.chain-type }}
           path: openapi.${{ matrix.chain-type }}.yaml
@@ -142,6 +157,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Push all OpenAPI specs
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Validate required secrets
         run: |
           if [ -z "${{ secrets.API_SPECS_PAT }}" ]; then
@@ -150,14 +170,14 @@ jobs:
           fi
 
       - name: Checkout specs repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: ${{ vars.API_SPECS_REPOSITORY }}
           token: ${{ secrets.API_SPECS_PAT }}
           path: api-specs
 
       - name: Download all swagger specs
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           pattern: openapi-spec-*
           merge-multiple: true
